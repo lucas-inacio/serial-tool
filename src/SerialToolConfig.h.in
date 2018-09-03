@@ -1,0 +1,2 @@
+#define SerialTool_VERSION_MAJOR @SerialTool_VERSION_MAJOR@
+#define SerialTool_VERSION_MINOR @SerialTool_VERSION_MINOR@

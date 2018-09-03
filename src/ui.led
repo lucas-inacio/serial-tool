@@ -1,0 +1,55 @@
+# Menu specification for the serial application
+
+
+##################################
+# Comm dialog
+##################################
+comm_data_list = list[DROPDOWN=YES, VALUE=4, EXPAND=HORIZONTAL, 1=5, 2=6, 3=7, 4=8, 5=9](null)
+comm_stop_list = list[DROPDOWN=YES, VALUE=1, EXPAND=HORIZONTAL, 1=1, 2=2](null)
+comm_parity_list = list[DROPDOWN=YES, VALUE=1, EXPAND=HORIZONTAL, 1=none, 2=odd, 3=even](null)
+comm_baud_list = list[
+    EXPAND=HORIZONTAL, DROPDOWN=YES, VALUE=7, 1=110, 2=300, 3=600, 4=1200, 5=2400, 6=4800,
+    7=9600, 8=14400, 9=19200, 10=38400, 11=57600, 12=115200, 13=128000, 14=256000](null)
+comm_port_list = list[DROPDOWN=YES, VALUE=1, EXPAND=HORIZONTAL](null)
+
+comm_area = Vbox[CMARGIN=5x2]
+(
+    HBox[GAP=5](Label[EXPAND=HORIZONTAL]("Port"), comm_port_list),
+    Hbox[GAP=5](Label[EXPAND=HORIZONTAL]("Baud"), comm_baud_list),
+    Hbox[GAP=5](Label[EXPAND=HORIZONTAL]("Parity"), comm_parity_list),
+    Hbox[GAP=5](Label[EXPAND=HORIZONTAL]("Data bits"), comm_data_list),
+    Hbox[GAP=5](Label[EXPAND=HORIZONTAL]("Stop bits"), comm_stop_list),
+    Hbox[GAP=5](
+        Button[EXPAND=HORIZONTAL]("OK", comm_config_ok),
+        Button[EXPAND=HORIZONTAL]("Cancel", comm_config_cancel))
+)
+
+comm_dialog = dialog[DIALOGFRAME=YES, MINSIZE=256x200, ICON=NULL](comm_area)
+
+##################################
+# Main menu
+##################################
+
+# Working area
+#main_tabs = Tabs[VISIBLE=NO, SHOWCLOSE=YES, EXPAND=YES]
+#(
+#    Text[MULTILINE=YES, READONLY=YES, EXPAND=YES](null)
+#)
+main_area = Hbox(Fill())
+
+# File menu
+item_new = item("New", action_new)
+item_exit = item("Exit", action_exit)
+file_menu = menu(item_new, separator(), item_exit)
+
+# Comm menu
+item_port = item("Port", action_port)
+comm_menu = menu(item_port)
+
+# Submenus
+file = submenu("File", file_menu)
+comm = submenu("Communication", comm_menu)
+main_menu = menu(file, comm)
+
+# Main dialog
+main = dialog[TITLE=SerialTool, MENU=main_menu, USERSIZE=768x512](main_area)

@@ -35,7 +35,7 @@ comm_dialog = dialog[DIALOGFRAME=YES, MINSIZE=256x200, ICON=NULL](comm_area)
 #(
 #    Text[MULTILINE=YES, READONLY=YES, EXPAND=YES](null)
 #)
-main_area = Hbox(Fill())
+main_area = Hbox[EXPAND=YES](Fill())
 
 # File menu
 item_new = item("New", action_new)

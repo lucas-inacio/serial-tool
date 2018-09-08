@@ -148,8 +148,9 @@ void create_tab(const char* title)
         tabs = IupTabs(NULL);
         IupSetCallback(tabs, "TABCLOSE_CB", (Icallback)action_tab_close);
         IupSetAttribute(tabs, "SHOWCLOSE", "YES");
-        if (IupAppend(main_area, tabs) == NULL) printf("Shit!\n");
-        if (IupMap(tabs) == IUP_ERROR) printf("Fuck!\n");
+        IupSetAttribute(tabs, "MARGIN", "3x5");
+        IupAppend(main_area, tabs);
+        IupMap(tabs);
     }
 
     Ihandle *text_read = IupText(NULL);
@@ -165,7 +166,7 @@ void create_tab(const char* title)
     IupSetAttribute(text_write, "NC", str);
     IupSetCallback(text_write, "K_ANY", (Icallback)text_entered);
 
-    Ihandle *vbox = IupVbox(text_read, text_write, NULL);
+    Ihandle *vbox = IupVbox(text_write, text_read, NULL);
     IupSetAttribute(vbox, "TABTITLE", title);
     IupSetAttribute(vbox, "GAP", "5");
 
@@ -250,7 +251,7 @@ int serial_loop(void)
             int read = ReadSerialBuffer(serialports[i], buffer, count);
 
             Ihandle *vbox = IupGetChild(tabs, i);
-            Ihandle *text_read = IupGetChild(vbox, 0);
+            Ihandle *text_read = IupGetChild(vbox, 1);
             IupSetAttribute(text_read, "APPEND", buffer);
         }
 

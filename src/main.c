@@ -253,6 +253,8 @@ int serial_loop(void)
             Ihandle *vbox = IupGetChild(tabs, i);
             Ihandle *text_read = IupGetChild(vbox, 1);
             IupSetAttribute(text_read, "APPEND", buffer);
+            const char *caret = IupGetAttribute(text_read, "COUNT");
+            IupSetAttribute(text_read, "CARETPOS", caret);
         }
 
         // Write operation

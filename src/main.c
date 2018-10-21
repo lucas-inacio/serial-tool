@@ -1,8 +1,6 @@
 #include "serial_utils.h"
 #include "ui_utils.h"
 
-#include <stdio.h>
-
 
 Ihandle *tabs = NULL;
 int tabs_count = 0;

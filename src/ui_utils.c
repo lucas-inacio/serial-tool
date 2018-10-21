@@ -77,8 +77,16 @@ int action_config_cancel(Ihandle *self)
 
 int action_tab_close(Ihandle *self, int pos)
 {
+    if (serialcount > 1)
+    {
+        int prev = (pos > 0) ? pos - 1 : 1;
+        char number[3] = { 0 };
+        number_to_string(number, 2, prev);
+        IupSetAttribute(tabs, "VALUEPOS", number);
+    }
+    IupDestroy(IupGetChild(tabs, pos));
     close_tab(pos);
-    return IUP_CONTINUE;
+    return IUP_DEFAULT;
 }
 
 void create_tab(const char* title)
@@ -88,8 +96,8 @@ void create_tab(const char* title)
     if (tabs == NULL)
     {
         tabs = IupTabs(NULL);
-        IupSetCallback(tabs, "TABCLOSE_CB", (Icallback)action_tab_close);
-        IupSetAttribute(tabs, "SHOWCLOSE", "YES");
+        IupSetCallback(tabs, "RIGHTCLICK_CB", (Icallback)action_tab_close);
+        //IupSetAttribute(tabs, "SHOWCLOSE", "YES");
         IupSetAttribute(tabs, "MARGIN", "3x5");
         IupAppend(main_area, tabs);
         IupMap(tabs);
@@ -153,7 +161,6 @@ void close_tab(int index)
         memmove(&serialports[index], &serialports[index + 1], sizeof(serialports) - index);
 }
 
-#include <stdio.h>
 int text_entered(Ihandle *self, int c, char *new_value)
 {
     if (c == CARRIAGE_RETURN) // Enter
@@ -163,7 +170,6 @@ int text_entered(Ihandle *self, int c, char *new_value)
         if (value != NULL)
         {
             int index = atoi(IupGetAttribute(tabs, "VALUEPOS"));
-            printf("Writing data from tab %d.\n", index);
             WriteSerialBuffer(serialports[index], value, strlen(value));
             IupSetAttribute(self, "VALUE", "");
         }

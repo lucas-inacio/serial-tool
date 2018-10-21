@@ -116,7 +116,6 @@ int WriteSerialPort(struct SerialPort *port)
     int byteswritten = 0;
     if (port->_OutputBufferCount > 0)
     {
-        printf("Writing to %d bytes to serial port.\n", port->_OutputBufferCount);
         byteswritten = sp_nonblocking_write(
             port->port, port->_OutputBuffer, port->_OutputBufferCount);
         port->_OutputBufferCount -= byteswritten;

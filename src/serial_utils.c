@@ -1,5 +1,8 @@
 #include "serial_utils.h"
 
+#include "globals.h"
+
+
 void show_port_names(struct sp_port **ports, int count)
 {
     int i;

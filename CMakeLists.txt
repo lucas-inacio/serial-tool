@@ -13,6 +13,8 @@ set(
     HEADER_FILES
     ${PROJECT_SOURCE_DIR}/include/serial_utils.h
     ${PROJECT_SOURCE_DIR}/include/string_utils.h
+    ${PROJECT_SOURCE_DIR}/include/ui_utils.h
+    ${PROJECT_SOURCE_DIR}/include/globals.h
 )
 
 set(
@@ -20,6 +22,7 @@ set(
     ${PROJECT_SOURCE_DIR}/src/serial_utils.c
     ${PROJECT_SOURCE_DIR}/src/string_utils.c
     ${PROJECT_SOURCE_DIR}/src/main.c
+    ${PROJECT_SOURCE_DIR}/src/ui_utils.c
 )
 
 find_path(SERIAL_PORT_INCLUDE "serialport")

@@ -78,7 +78,6 @@ int action_config_cancel(Ihandle *self)
 int action_tab_close(Ihandle *self, int pos)
 {
     close_tab(pos);
-    // return IUP_CONTINUE;
     return IUP_CONTINUE;
 }
 

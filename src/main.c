@@ -54,7 +54,6 @@ int serial_loop(void)
         char buffer[TEXT_SIZE + 1] = { 0 };
         if (ReadSerialPort(serialports[i]) > 0)
         {
-            printf("Incoming data from port %d.\n", i);
             int count = TEXT_SIZE; // maximum bytes to read
 
             // If \r is the last (or only) character available, skip reading the buffer
@@ -63,16 +62,16 @@ int serial_loop(void)
             if (serialports[i]->_InputBuffer[last_index] == '\r')
                 count = serialports[i]->_InputBufferCount - 1;
 
-            // Only character available. Skip
-            if (count == 0) continue;
-
-            int read = ReadSerialBuffer(serialports[i], buffer, count);
-
-            Ihandle *vbox = IupGetChild(tabs, i);
-            Ihandle *text_read = IupGetChild(vbox, 1);
-            IupSetAttribute(text_read, "APPEND", buffer);
-            const char *caret = IupGetAttribute(text_read, "COUNT");
-            IupSetAttribute(text_read, "CARETPOS", caret);
+            // Only character available (or no caracter at all). Skip
+            if (count != 0)
+            {
+                int read = ReadSerialBuffer(serialports[i], buffer, count);
+                Ihandle *vbox = IupGetChild(tabs, i);
+                Ihandle *text_read = IupGetChild(vbox, 1);
+                IupSetAttribute(text_read, "APPEND", buffer);
+                const char *caret = IupGetAttribute(text_read, "COUNT");
+                IupSetAttribute(text_read, "CARETPOS", caret);
+            }
         }
 
         // Write operation

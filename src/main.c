@@ -1,11 +1,13 @@
 #include "serial_utils.h"
 #include "ui_utils.h"
 
+#include <stdio.h>
+
 
 Ihandle *tabs = NULL;
 int tabs_count = 0;
 
-struct SerialPort *serialports[10];
+struct SerialPort *serialports[MAXIMUM_PORTS];
 int serialcount = 0;
 
 
@@ -52,6 +54,7 @@ int serial_loop(void)
         char buffer[TEXT_SIZE + 1] = { 0 };
         if (ReadSerialPort(serialports[i]) > 0)
         {
+            printf("Incoming data from port %d.\n", i);
             int count = TEXT_SIZE; // maximum bytes to read
 
             // If \r is the last (or only) character available, skip reading the buffer

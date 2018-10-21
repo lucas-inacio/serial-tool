@@ -15,6 +15,9 @@ int action_exit(Ihandle* self)
 
 int action_new(Ihandle* self)
 {
+    if (serialcount >= MAXIMUM_PORTS)
+        return IUP_IGNORE;
+
     char index_str[4] = { 0 };
     struct sp_port** ports;
     int count = detect_ports(&ports);
@@ -75,6 +78,7 @@ int action_config_cancel(Ihandle *self)
 int action_tab_close(Ihandle *self, int pos)
 {
     close_tab(pos);
+    // return IUP_CONTINUE;
     return IUP_CONTINUE;
 }
 
@@ -150,6 +154,7 @@ void close_tab(int index)
         memmove(&serialports[index], &serialports[index + 1], sizeof(serialports) - index);
 }
 
+#include <stdio.h>
 int text_entered(Ihandle *self, int c, char *new_value)
 {
     if (c == CARRIAGE_RETURN) // Enter
@@ -158,7 +163,8 @@ int text_entered(Ihandle *self, int c, char *new_value)
         char *value = IupGetAttribute(self, "VALUE");
         if (value != NULL)
         {
-            int index = atoi(IupGetAttribute(tabs, "VALUE"));
+            int index = atoi(IupGetAttribute(tabs, "VALUEPOS"));
+            printf("Writing data from tab %d.\n", index);
             WriteSerialBuffer(serialports[index], value, strlen(value));
             IupSetAttribute(self, "VALUE", "");
         }

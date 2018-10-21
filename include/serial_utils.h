@@ -4,7 +4,8 @@
 #include <libserialport.h>
 #include <libserialport_internal.h>
 
-#define TEMP_BUFFER 512
+#define MAXIMUM_PORTS 10
+#define TEMP_BUFFER   512
 
 struct SerialPort
 {

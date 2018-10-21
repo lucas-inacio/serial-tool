@@ -7,7 +7,7 @@
 extern Ihandle *tabs;
 extern int tabs_count;
 
-extern struct SerialPort *serialports[10];
+extern struct SerialPort *serialports[MAXIMUM_PORTS];
 extern int serialcount;
 
 #endif // GLOBALS_H

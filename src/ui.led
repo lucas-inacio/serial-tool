@@ -39,14 +39,18 @@ comm_dialog = dialog[TITLE="Port configuration", DIALOGFRAME=YES, MINSIZE=256x20
 # Working area
 main_area = Hbox[EXPAND=YES](Fill())
 
-# File menu
+# Menus
 item_new = item("New", action_new)
 item_exit = item("Exit", action_exit)
 file_menu = menu(item_new, separator(), item_exit)
 
+item_about = item("About", action_about)
+help_menu = menu(item_about)
+
 # Submenus
 file = submenu("File", file_menu)
-main_menu = menu(file)
+help = submenu("Help", help_menu)
+main_menu = menu(file, help)
 
 # Main dialog
 main = dialog[TITLE=SerialTool, MENU=main_menu, USERSIZE=768x512](main_area)

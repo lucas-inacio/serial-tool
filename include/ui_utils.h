@@ -15,6 +15,7 @@
 // UI callbacks (Main window)
 int action_exit(Ihandle *self);
 int action_new(Ihandle *self);
+int action_about(Ihandle *self);
 
 // UI callbacks (Comm configuration dialog)
 int action_config_ok(Ihandle *self);

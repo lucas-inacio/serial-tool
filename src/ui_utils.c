@@ -45,6 +45,16 @@ int action_new(Ihandle* self)
     return IUP_IGNORE;
 }
 
+int action_about(Ihandle *self)
+{
+    char buffer[20] = { 0 };
+    sprintf(buffer, "Version %d.%d",
+            SerialTool_VERSION_MAJOR,
+            SerialTool_VERSION_MINOR);
+    IupMessage("SerialTool", buffer);
+    return IUP_DEFAULT;
+}
+
 // UI callbacks (Comm configuration dialog)
 int action_config_ok(Ihandle* self)
 {

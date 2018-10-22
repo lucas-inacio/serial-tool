@@ -29,6 +29,7 @@ int main(int argc, char **argv)
     IupSetFunction("comm_config_ok", (Icallback)action_config_ok);
     IupSetFunction("comm_config_cancel", (Icallback)action_config_cancel);
     IupSetFunction("IDLE_ACTION", (Icallback)serial_loop);
+    IupSetFunction("action_about", (Icallback)action_about);
 
     // Main loop
     IupShow(IupGetHandle("main"));

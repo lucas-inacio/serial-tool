@@ -1,6 +1,7 @@
 #ifndef GLOBALS_H
 #define GLOBALS_H
 
+#include "SerialToolConfig.h"
 #include <iup/iup.h>
 
 // Tabs

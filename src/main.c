@@ -55,7 +55,7 @@ int serial_loop(void)
             int count = TEXT_SIZE; // maximum bytes to read
 
             // If \r is the last (or only) character available, skip reading the buffer
-            // The purpose is to get both \r and \n together
+            // The purpose is to get both \r and \n together and avoid printing two new lines
             int last_index = serialports[i]->_InputBufferCount - 1;
             if (serialports[i]->_InputBuffer[last_index] == '\r')
                 count = serialports[i]->_InputBufferCount - 1;

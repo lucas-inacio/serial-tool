@@ -89,37 +89,50 @@ int action_tab_close(Ihandle *self, int pos)
     return IUP_DEFAULT;
 }
 
-void create_tab(const char* title)
+void create_tab(const char* title, int choice)
 {
     // Creates a Tabs in case there isn't one yet
     Ihandle* main_area = IupGetHandle("main_area");
+    Ihandle *vbox = NULL;
     if (tabs == NULL)
     {
         tabs = IupTabs(NULL);
         IupSetCallback(tabs, "RIGHTCLICK_CB", (Icallback)action_tab_close);
-        //IupSetAttribute(tabs, "SHOWCLOSE", "YES");
         IupSetAttribute(tabs, "MARGIN", "3x5");
         IupAppend(main_area, tabs);
         IupMap(tabs);
     }
 
-    Ihandle *text_read = IupText(NULL);
-    IupSetAttribute(text_read, "MULTILINE", "YES");
-    IupSetAttribute(text_read, "EXPAND", "YES");
-    IupSetAttribute(text_read, "READONLY", "YES");
-    IupSetAttribute(text_read, "APPENDNEWLINE", "NO");
+    switch (choice)
+    {
+    case CHOICE_MASCII:
+    case CHOICE_MRTU:
+        {
+            Ihandle *matrix = IupMatrix(NULL);
+            vbox = IupVbox(matrix, NULL);
+        }
+        break;
+    case CHOICE_SERIAL:
+        {
+            Ihandle *text_read = IupText(NULL);
+            IupSetAttribute(text_read, "MULTILINE", "YES");
+            IupSetAttribute(text_read, "EXPAND", "YES");
+            IupSetAttribute(text_read, "READONLY", "YES");
+            IupSetAttribute(text_read, "APPENDNEWLINE", "NO");
 
-    Ihandle *text_write = IupText(NULL);
-    IupSetAttribute(text_write, "EXPAND", "HORIZONTAL");
-    char str[4] = { 0 };
-    number_to_string(str, 3, TEXT_SIZE);
-    IupSetAttribute(text_write, "NC", str);
-    IupSetCallback(text_write, "K_ANY", (Icallback)text_entered);
+            Ihandle *text_write = IupText(NULL);
+            IupSetAttribute(text_write, "EXPAND", "HORIZONTAL");
+            char str[4] = { 0 };
+            number_to_string(str, 3, TEXT_SIZE);
+            IupSetAttribute(text_write, "NC", str);
+            IupSetCallback(text_write, "K_ANY", (Icallback)text_entered);
+            vbox = IupVbox(text_write, text_read, NULL);
+        }
+        break;
+    }
 
-    Ihandle *vbox = IupVbox(text_write, text_read, NULL);
     IupSetAttribute(vbox, "TABTITLE", title);
     IupSetAttribute(vbox, "GAP", "5");
-
     // Inserts the new widgets on the Tabs
     IupAppend(tabs, vbox);
     IupMap(vbox);
@@ -146,9 +159,10 @@ void open_tab(const char *title)
     int stopbits = atoi(IupGetAttribute(stop_list, stop_index));
     // ATTENTION: code assumes the specific order NONE = 0, ODD and EVEN
     enum sp_parity parity = atoi(parity_index) - 1;
-    create_tab(title);
+
     serialports[serialcount++] =
         OpenSerialPort(title, baudrate, bits, parity, stopbits, TEXT_SIZE, TEXT_SIZE);
+    create_tab(title, get_choice_radio());
 }
 
 void close_tab(int index)
@@ -175,4 +189,23 @@ int text_entered(Ihandle *self, int c, char *new_value)
         }
     }
     return IUP_DEFAULT;
+}
+
+int get_choice_radio()
+{
+    int result = CHOICE_MASCII;
+    Ihandle *radio = IupGetHandle("type_radio");
+    Ihandle *mascii = IupGetHandle("modbus_ascii");
+    Ihandle *mrtu = IupGetHandle("modbus_rtu");
+    Ihandle *serial = IupGetHandle("serial");
+    Ihandle *value = (Ihandle *)IupGetAttribute(radio, "VALUE_HANDLE");
+
+    if (value == mascii)
+        result = CHOICE_MASCII;
+    else if (value == mrtu)
+        result = CHOICE_MRTU;
+    else if (value == serial)
+        result = CHOICE_SERIAL;
+
+    return result;
 }

@@ -4,6 +4,11 @@
 ##################################
 # Comm dialog
 ##################################
+modbus_ascii = toggle("Modbus ASCII", null)
+modbus_rtu = toggle("Modbus RTU", null)
+serial = toggle("Serial Terminal", null)
+type_radio = radio(Hbox(modbus_ascii, modbus_rtu, serial))
+
 comm_data_list = list[DROPDOWN=YES, VALUE=4, EXPAND=HORIZONTAL, 1=5, 2=6, 3=7, 4=8, 5=9](null)
 comm_stop_list = list[DROPDOWN=YES, VALUE=1, EXPAND=HORIZONTAL, 1=1, 2=2](null)
 comm_parity_list = list[DROPDOWN=YES, VALUE=1, EXPAND=HORIZONTAL, 1=none, 2=odd, 3=even](null)
@@ -19,22 +24,19 @@ comm_area = Vbox[CMARGIN=5x2]
     Hbox[GAP=5](Label[EXPAND=HORIZONTAL]("Parity"), comm_parity_list),
     Hbox[GAP=5](Label[EXPAND=HORIZONTAL]("Data bits"), comm_data_list),
     Hbox[GAP=5](Label[EXPAND=HORIZONTAL]("Stop bits"), comm_stop_list),
+    Hbox[GAP=5](Label[EXPAND=HORIZONTAL]("Type"), type_radio),
     Hbox[GAP=5](
         Button[EXPAND=HORIZONTAL]("OK", comm_config_ok),
         Button[EXPAND=HORIZONTAL]("Cancel", comm_config_cancel))
 )
 
-comm_dialog = dialog[DIALOGFRAME=YES, MINSIZE=256x200, ICON=NULL](comm_area)
+comm_dialog = dialog[TITLE="Port configuration", DIALOGFRAME=YES, MINSIZE=256x200, ICON=NULL](comm_area)
 
 ##################################
 # Main menu
 ##################################
 
 # Working area
-#main_tabs = Tabs[VISIBLE=NO, SHOWCLOSE=YES, EXPAND=YES]
-#(
-#    Text[MULTILINE=YES, READONLY=YES, EXPAND=YES](null)
-#)
 main_area = Hbox[EXPAND=YES](Fill())
 
 # File menu

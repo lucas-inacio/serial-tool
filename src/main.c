@@ -12,6 +12,7 @@ int serialcount = 0;
 
 // Serial callback
 int serial_loop(void);
+void main_loop(int argc, char** argv);
 
 
 struct SerialPort* serial = NULL;
@@ -19,35 +20,10 @@ void teste_modbus(void);
 
 int main(int argc, char **argv)
 {
-    // const char* error = NULL;
-    // IupOpen(&argc, &argv);
-    // IupControlsOpen();
-    // if ((error = IupLoad("ui.led")) != NULL)
-    // {
-    //     IupMessage("Error", error);
-    //     exit(1);
-    // }
-
-    // // Callbacks
-    // IupSetFunction("action_exit", (Icallback)action_exit);
-    // IupSetFunction("action_new", (Icallback)action_new);
-    // IupSetFunction("comm_config_ok", (Icallback)action_config_ok);
-    // IupSetFunction("comm_config_cancel", (Icallback)action_config_cancel);
-    // IupSetFunction("IDLE_ACTION", (Icallback)serial_loop);
-    // IupSetFunction("action_about", (Icallback)action_about);
-
-    // // Main loop
-    // IupShow(IupGetHandle("main"));
-    // IupMainLoop();
-
-    // // Clean up
-    // IupDestroy(IupGetHandle("main"));
-    // IupClose();
-    // for (--serialcount; serialcount >= 0; --serialcount)
-    //     CloseSerialPort(serialports[serialcount]);
-    teste_modbus();
-    scanf("Prosseguir?\n");
-    CloseSerialPort(serial);
+    main_loop(argc, argv);
+    // teste_modbus();
+    // scanf("Prosseguir?\n");
+    // CloseSerialPort(serial);
     return EXIT_SUCCESS;
 }
 
@@ -88,6 +64,36 @@ int serial_loop(void)
     return IUP_DEFAULT;
 }
 
+void main_loop(int argc, char** argv)
+{
+    const char* error = NULL;
+    IupOpen(&argc, &argv);
+    IupControlsOpen();
+    if ((error = IupLoad("ui.led")) != NULL)
+    {
+        IupMessage("Error", error);
+        exit(1);
+    }
+
+    // Callbacks
+    IupSetFunction("action_exit", (Icallback)action_exit);
+    IupSetFunction("action_new", (Icallback)action_new);
+    IupSetFunction("comm_config_ok", (Icallback)action_config_ok);
+    IupSetFunction("comm_config_cancel", (Icallback)action_config_cancel);
+    IupSetFunction("IDLE_ACTION", (Icallback)serial_loop);
+    IupSetFunction("action_about", (Icallback)action_about);
+
+    // Main loop
+    IupShow(IupGetHandle("main"));
+    IupMainLoop();
+
+    // Clean up
+    IupDestroy(IupGetHandle("main"));
+    IupClose();
+    for (--serialcount; serialcount >= 0; --serialcount)
+        CloseSerialPort(serialports[serialcount]);
+}
+
 void teste_modbus(void)
 {
     printf("Testando...\n");
@@ -110,6 +116,7 @@ void teste_modbus(void)
     printf("Size: %d", size);
     printf("Message: %s\n", bufferFinal);
 
+    // Send
     size_t bytesToSend = strlen(bufferFinal);
     size_t bytesSent = 0;
     serial = OpenSerialPort("COM3", 9600, 8, SP_PARITY_NONE, 2, 512, 512);
@@ -119,6 +126,19 @@ void teste_modbus(void)
         bytesSent += WriteSerialPort(serial);
     }
     while (bytesSent < bytesToSend);
+
+    // Receive
+    size_t bytesReceived = 0;
+    int i;
+    for (i = 0; i < 100000; ++i)
+        bytesReceived += ReadSerialPort(serial);
+
+    if (bytesReceived > 0)
+    {
+        printf("Data size: %d\n", ReadSerialBuffer(serial, bufferFinal, bytesReceived));
+        printf("Data: %s\n", bufferFinal);
+        translateFromASCIIStream(bufferFinal, bytesReceived, &msg);
+    }
     // size_t bytesRead = 0;
     //while ((bytesRead = ReadSerialPort(serial)) == 0);
 }

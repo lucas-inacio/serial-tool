@@ -103,9 +103,22 @@ void CloseSerialPort(struct SerialPort *port)
 int ReadSerialPort(struct SerialPort *port)
 {
     int bytesread = 0;
-    bytesread = sp_nonblocking_read(
-        port->port, port->_InputBuffer, port->_InputBufferSize);
-    if (bytesread >= 0) port->_InputBufferCount = bytesread;
+
+    if (port->_InputBufferCount > 0 &&
+        port->_InputBufferCount < port->_InputBufferSize)
+    {
+        bytesread = sp_nonblocking_read(
+            port->port,
+            &port->_InputBuffer[port->_InputBufferCount],
+            port->_InputBufferSize - port->_InputBufferCount);
+    }
+    else
+    {
+        port->_InputBufferCount = 0;
+        bytesread = sp_nonblocking_read(
+            port->port, port->_InputBuffer, port->_InputBufferSize);
+    }
+    if (bytesread >= 0) port->_InputBufferCount += bytesread;
 
     return bytesread;
 }

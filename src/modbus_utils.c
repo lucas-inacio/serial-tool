@@ -39,7 +39,7 @@ void translateFromASCIIStream(
     int lastIndex = size - 2;
     for (int i = 4; i < lastIndex; i += 2)
         outMessage->pdu.data[i] = ASCIIToByte(message[i], message[i + 1]);
-    outMessage->pdu.size = size - 4;
+    outMessage->pdu.size = size - 3;
 }
 
 uint8_t nibbleToASCII(uint8_t nibble)

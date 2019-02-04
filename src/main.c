@@ -20,10 +20,8 @@ void teste_modbus(void);
 
 int main(int argc, char **argv)
 {
-    main_loop(argc, argv);
-    // teste_modbus();
-    // scanf("Prosseguir?\n");
-    // CloseSerialPort(serial);
+    // main_loop(argc, argv);
+    teste_modbus();
     return EXIT_SUCCESS;
 }
 
@@ -138,7 +136,9 @@ void teste_modbus(void)
         printf("Data size: %d\n", ReadSerialBuffer(serial, bufferFinal, bytesReceived));
         printf("Data: %s\n", bufferFinal);
         translateFromASCIIStream(bufferFinal, bytesReceived, &msg);
+        printf("Addres: %d\n", msg.address);
+        printf("Size: %d\n", msg.pdu.size);
     }
-    // size_t bytesRead = 0;
-    //while ((bytesRead = ReadSerialPort(serial)) == 0);
+    scanf("Prosseguir?\n");
+    CloseSerialPort(serial);
 }

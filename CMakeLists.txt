@@ -15,6 +15,7 @@ set(
     ${PROJECT_SOURCE_DIR}/include/string_utils.h
     ${PROJECT_SOURCE_DIR}/include/ui_utils.h
     ${PROJECT_SOURCE_DIR}/include/globals.h
+    ${PROJECT_SOURCE_DIR}/include/modbus_utils.h
 )
 
 set(
@@ -23,6 +24,7 @@ set(
     ${PROJECT_SOURCE_DIR}/src/string_utils.c
     ${PROJECT_SOURCE_DIR}/src/main.c
     ${PROJECT_SOURCE_DIR}/src/ui_utils.c
+    ${PROJECT_SOURCE_DIR}/src/modbus_utils.c
 )
 
 find_path(SERIAL_PORT_INCLUDE "serialport")

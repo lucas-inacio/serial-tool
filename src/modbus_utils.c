@@ -81,9 +81,9 @@ uint8_t LRC(struct ModbusMessage* message)
 }
 
 void BuildRequest(
+    struct ModbusMessage* msg,
     uint8_t address,
     enum ModbusFunction functionCode,
-    struct ModbusMessage* msg,
     uint16_t startingAddress,
     uint16_t value)
 {

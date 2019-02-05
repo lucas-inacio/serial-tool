@@ -46,9 +46,9 @@ uint8_t LRC(struct ModbusMessage* message);
 // Many modbus functions have the format
 // | funcionCode (1 byte) | startAddress (2 bytes) | quantityOfRegisters (2 bytes) |
 void BuildRequest(
+    struct ModbusMessage* msg,
     uint8_t address,
     enum ModbusFunction functionCode,
-    struct ModbusMessage* msg,
     uint16_t startingAddress,
     uint16_t value);
 

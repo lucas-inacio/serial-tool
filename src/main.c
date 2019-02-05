@@ -101,7 +101,7 @@ void teste_modbus(void)
     struct ModbusMessage msg;
     msg.pdu.data = buffer;
     // Coil off
-    BuildRequest(1, WRITE_SINGLE_COIL, &msg, 0, COIL_OFF);
+    BuildRequest(&msg, 1, WRITE_SINGLE_COIL, 0, COIL_ON);
     size_t size = translateToASCIIStream(&msg, &bufferFinal[1]);
     bufferFinal[0] = ':';
     bufferFinal[size + 1] = '\r';

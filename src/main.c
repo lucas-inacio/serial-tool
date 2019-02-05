@@ -13,6 +13,7 @@ int serialcount = 0;
 // Serial callback
 int serial_loop(void);
 void main_loop(int argc, char** argv);
+void print_registers(uint8_t* data, size_t size);
 
 
 struct SerialPort* serial = NULL;
@@ -43,7 +44,7 @@ int serial_loop(void)
             if (serialports[i]->_InputBuffer[last_index] == '\r')
                 count = serialports[i]->_InputBufferCount - 1;
 
-            // Only character available (or no caracter at all). Skip
+            // Only character available (or no character at all). Skip
             if (count != 0)
             {
                 int read = ReadSerialBuffer(serialports[i], buffer, count);
@@ -135,10 +136,25 @@ void teste_modbus(void)
     {
         printf("Data size: %d\n", ReadSerialBuffer(serial, bufferFinal, bytesReceived));
         printf("Data: %s\n", bufferFinal);
-        translateFromASCIIStream(bufferFinal, bytesReceived, &msg);
-        printf("Addres: %d\n", msg.address);
+        // Eliminate the ':' and the 'CR' and 'LF' bytes
+        translateFromASCIIStream(&bufferFinal[1], bytesReceived - 3, &msg);
+        printf("Address: %d\n", msg.address);
+        printf("Function code: %d\n", msg.pdu.functionCode);
+        printf("Checksum: %d\n", msg.checksum);
         printf("Size: %d\n", msg.pdu.size);
+        print_registers(&msg.pdu.data[1], msg.pdu.size - 1);
     }
     scanf("Prosseguir?\n");
     CloseSerialPort(serial);
+}
+
+void print_registers(uint8_t* data, size_t size)
+{
+    size_t i;
+    for (i = 0; i < (size - 1); i += 2)
+    {
+        uint16_t number;
+        number = ((data[i] << 8) & 0xFF00) | (data[i + 1] & 0x00FF);
+        printf("Data: %d\n", number);
+    }
 }

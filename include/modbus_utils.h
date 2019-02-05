@@ -27,8 +27,11 @@ struct ModbusMessage
     uint16_t checksum;
 };
 
+// Translates a ModbusMessage to a stream of bytes already in the ASCII format
 size_t translateToASCIIStream(
     const struct ModbusMessage* message, uint8_t* buffer);
+// Translates a stream of bytes to a ModbusMessage
+// Note: the message must not contain the ':' and the termination 'CR' and 'LF' bytes
 void translateFromASCIIStream(
     const uint8_t* message, size_t size, struct ModbusMessage* outMessage);
 

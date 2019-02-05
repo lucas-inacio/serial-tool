@@ -99,15 +99,9 @@ void teste_modbus(void)
     uint8_t buffer[512] = { 0 };
     uint8_t bufferFinal[512] = { 0 };
     struct ModbusMessage msg;
-    msg.address = 1;
-    msg.pdu.functionCode = READ_HOLDING_REGISTERS;
     msg.pdu.data = buffer;
-    msg.pdu.data[0] = (0 >> 8) & 0x00FF;
-    msg.pdu.data[1] = 0 & 0x00FF;
-    msg.pdu.data[2] = (5 >> 8) & 0x00FF;
-    msg.pdu.data[3] = 5 & 0x00FF;
-    msg.pdu.size = 4;
-    msg.checksum = LRC(&msg);
+    // Coil off
+    BuildRequest(1, WRITE_SINGLE_COIL, &msg, 0, COIL_OFF);
     size_t size = translateToASCIIStream(&msg, &bufferFinal[1]);
     bufferFinal[0] = ':';
     bufferFinal[size + 1] = '\r';
@@ -134,15 +128,15 @@ void teste_modbus(void)
 
     if (bytesReceived > 0)
     {
-        printf("Data size: %d\n", ReadSerialBuffer(serial, bufferFinal, bytesReceived));
-        printf("Data: %s\n", bufferFinal);
-        // Eliminate the ':' and the 'CR' and 'LF' bytes
-        translateFromASCIIStream(&bufferFinal[1], bytesReceived - 3, &msg);
-        printf("Address: %d\n", msg.address);
-        printf("Function code: %d\n", msg.pdu.functionCode);
-        printf("Checksum: %d\n", msg.checksum);
-        printf("Size: %d\n", msg.pdu.size);
-        print_registers(&msg.pdu.data[1], msg.pdu.size - 1);
+        // printf("Data size: %d\n", ReadSerialBuffer(serial, bufferFinal, bytesReceived));
+        // printf("Data: %s\n", bufferFinal);
+        // // Eliminate the ':' and the 'CR' and 'LF' bytes
+        // translateFromASCIIStream(&bufferFinal[1], bytesReceived - 3, &msg);
+        // printf("Address: %d\n", msg.address);
+        // printf("Function code: %d\n", msg.pdu.functionCode);
+        // printf("Checksum: %d\n", msg.checksum);
+        // printf("Size: %d\n", msg.pdu.size);
+        // print_registers(&msg.pdu.data[1], msg.pdu.size - 1);
     }
     scanf("Prosseguir?\n");
     CloseSerialPort(serial);

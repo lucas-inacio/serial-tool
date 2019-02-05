@@ -79,3 +79,20 @@ uint8_t LRC(struct ModbusMessage* message)
 
     return (lrc ^ 0xFF) + 1;
 }
+
+void BuildRequest(
+    uint8_t address,
+    enum ModbusFunction functionCode,
+    struct ModbusMessage* msg,
+    uint16_t startingAddress,
+    uint16_t value)
+{
+    msg->address = address;
+    msg->pdu.functionCode = functionCode;
+    msg->pdu.data[0] = (startingAddress >> 8) & 0x00FF;
+    msg->pdu.data[1] = startingAddress & 0x00FF;
+    msg->pdu.data[2] = (value >> 8) & 0x00FF;
+    msg->pdu.data[3] = value & 0x00FF;
+    msg->pdu.size = 4;
+    msg->checksum = LRC(msg); 
+}

@@ -3,13 +3,16 @@
 
 #include <stdint.h>
 
+#define COIL_ON  0xFF00
+#define COIL_OFF 0x0000
+
 enum ModbusFunction
 {
     READ_COILS = 1,
     READ_DISCRETE_INPUTS,
     READ_HOLDING_REGISTERS,
     READ_INPUT_REGISTERS,
-    WRITE_SINGLE_COILS,
+    WRITE_SINGLE_COIL,
     WRITE_SINGLE_REGISTER,
     WRITE_MULTIPLE_COILS = 15,
     WRITE_MULTIPLE_REGISTERS
@@ -39,5 +42,15 @@ void translateFromASCIIStream(
 uint8_t nibbleToASCII(uint8_t nibble);
 uint8_t ASCIIToByte(uint8_t high, uint8_t low);
 uint8_t LRC(struct ModbusMessage* message);
+
+// Many modbus functions have the format
+// | funcionCode (1 byte) | startAddress (2 bytes) | quantityOfRegisters (2 bytes) |
+void BuildRequest(
+    uint8_t address,
+    enum ModbusFunction functionCode,
+    struct ModbusMessage* msg,
+    uint16_t startingAddress,
+    uint16_t value);
+
 
 #endif // MODBUS_UTILS_H

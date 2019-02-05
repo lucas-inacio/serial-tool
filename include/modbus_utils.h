@@ -42,6 +42,7 @@ void translateFromASCIIStream(
 uint8_t nibbleToASCII(uint8_t nibble);
 uint8_t ASCIIToByte(uint8_t high, uint8_t low);
 uint8_t LRC(struct ModbusMessage* message);
+uint16_t CRC16(uint8_t* data, size_t size);
 
 // Many modbus functions have the format
 // | funcionCode (1 byte) | startAddress (2 bytes) | quantityOfRegisters (2 bytes) |
@@ -51,6 +52,7 @@ void BuildRequest(
     enum ModbusFunction functionCode,
     uint16_t startingAddress,
     uint16_t value);
+
 
 
 #endif // MODBUS_UTILS_H

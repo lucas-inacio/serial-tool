@@ -69,17 +69,6 @@ uint8_t ASCIIToByte(uint8_t high, uint8_t low)
     return value;
 }
 
-uint8_t LRC(struct ModbusMessage* message)
-{
-    uint8_t lrc = 0;
-    lrc = message->address + message->pdu.functionCode;
-    size_t i;
-    for (i = 0; i < message->pdu.size; ++i)
-        lrc += message->pdu.data[i];
-
-    return (lrc ^ 0xFF) + 1;
-}
-
 void BuildRequest(
     struct ModbusMessage* msg,
     uint8_t address,
@@ -95,4 +84,39 @@ void BuildRequest(
     msg->pdu.data[3] = value & 0x00FF;
     msg->pdu.size = 4;
     msg->checksum = LRC(msg); 
+}
+
+uint8_t LRC(struct ModbusMessage* message)
+{
+    uint8_t lrc = 0;
+    lrc = message->address + message->pdu.functionCode;
+    size_t i;
+    for (i = 0; i < message->pdu.size; ++i)
+        lrc += message->pdu.data[i];
+
+    return (lrc ^ 0xFF) + 1;
+}
+
+uint16_t CRC16(uint8_t* data, size_t size)
+{
+	static const uint16_t CRC_POLY = 0xa001;
+	uint16_t crc = 0xffff;
+	uint16_t dataArrayIndex = 0;
+
+	for (; dataArrayIndex < size; ++dataArrayIndex)
+	{
+		crc ^= data[dataArrayIndex];
+		uint8_t bitCount = 0;
+		for (; bitCount < 8; ++bitCount)
+		{
+			if (crc & 1)
+			{
+				crc >>= 1;
+				crc ^= CRC_POLY;
+			}
+			else
+				crc >>= 1;
+		}
+	}
+	return crc;
 }

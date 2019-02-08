@@ -29,6 +29,7 @@ int text_entered(Ihandle *self, int c, char *new_value);
 void create_tab(const char *title, int choice);
 void open_tab(const char *title);
 void close_tab(int index);
+int change_tab(Ihandle *self, Ihandle* new_tab, Ihandle* old_tab);
 
 int get_choice_radio();
 

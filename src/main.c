@@ -6,23 +6,25 @@
 Ihandle *tabs = NULL;
 int tabs_count = 0;
 
-struct SerialPort *serialports[MAXIMUM_PORTS];
+// struct SerialPort *serialports[MAXIMUM_PORTS];
+struct CommDescriptor serialports[MAXIMUM_PORTS];
+
 int serialcount = 0;
 
 
 // Serial callback
 int serial_loop(void);
-void main_loop(int argc, char** argv);
+void main_loop(int argc, char **argv);
 void print_registers(uint8_t* data, size_t size);
 
 
-struct SerialPort* serial = NULL;
+struct SerialPort *serial = NULL;
 void teste_modbus(void);
 
 int main(int argc, char **argv)
 {
-    // main_loop(argc, argv);
-    teste_modbus();
+    main_loop(argc, argv);
+    // teste_modbus();
     return EXIT_SUCCESS;
 }
 
@@ -34,20 +36,20 @@ int serial_loop(void)
     {
         // Read operation
         char buffer[TEXT_SIZE + 1] = { 0 };
-        if (ReadSerialPort(serialports[i]) > 0)
+        if (ReadSerialPort(serialports[i].port) > 0)
         {
             int count = TEXT_SIZE; // maximum bytes to read
 
             // If \r is the last (or only) character available, skip reading the buffer
             // The purpose is to get both \r and \n together and avoid printing two new lines
-            int last_index = serialports[i]->_InputBufferCount - 1;
-            if (serialports[i]->_InputBuffer[last_index] == '\r')
-                count = serialports[i]->_InputBufferCount - 1;
+            int last_index = serialports[i].port->_InputBufferCount - 1;
+            if (serialports[i].port->_InputBuffer[last_index] == '\r')
+                count = serialports[i].port->_InputBufferCount - 1;
 
             // Only character available (or no character at all). Skip
             if (count != 0)
             {
-                int read = ReadSerialBuffer(serialports[i], buffer, count);
+                int read = ReadSerialBuffer(serialports[i].port, buffer, count);
                 Ihandle *vbox = IupGetChild(tabs, i);
                 Ihandle *text_read = IupGetChild(vbox, 1);
                 IupSetAttribute(text_read, "APPEND", buffer);
@@ -57,7 +59,7 @@ int serial_loop(void)
         }
 
         // Write operation
-        WriteSerialPort(serialports[i]);
+        WriteSerialPort(serialports[i].port);
     }
 
     return IUP_DEFAULT;
@@ -90,7 +92,7 @@ void main_loop(int argc, char** argv)
     IupDestroy(IupGetHandle("main"));
     IupClose();
     for (--serialcount; serialcount >= 0; --serialcount)
-        CloseSerialPort(serialports[serialcount]);
+        CloseSerialPort(serialports[serialcount].port);
 }
 
 void teste_modbus(void)
@@ -101,7 +103,7 @@ void teste_modbus(void)
     struct ModbusMessage msg;
     msg.pdu.data = buffer;
     // Coil off
-    BuildRequest(&msg, 1, WRITE_SINGLE_COIL, 0, COIL_ON);
+    BuildRequest(&msg, 1, WRITE_SINGLE_COIL, 0, COIL_OFF);
     size_t size = translateToASCIIStream(&msg, &bufferFinal[1]);
     bufferFinal[0] = ':';
     bufferFinal[size + 1] = '\r';

@@ -7,6 +7,13 @@
 #define MAXIMUM_PORTS 10
 #define TEMP_BUFFER   512
 
+enum CommType { SERIAL, MODBUS_ASCII, MODBUS_RTU };
+
+struct CommDescriptor {
+    enum CommType type;
+    struct SerialPort *port;
+};
+
 struct SerialPort
 {
     char *_InputBuffer;

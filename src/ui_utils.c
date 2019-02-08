@@ -68,7 +68,7 @@ int action_config_ok(Ihandle* self)
         for (; i < serialcount; ++i)
         {
             // TODO: Free memory here
-            char *name = sp_get_port_name(serialports[i]->port);
+            char *name = sp_get_port_name(serialports[i].port->port);
             if (strcmp(port_name, name) == 0) // Port already in use
             {
                 return IUP_CLOSE;
@@ -107,6 +107,7 @@ void create_tab(const char* title, int choice)
     if (tabs == NULL)
     {
         tabs = IupTabs(NULL);
+        IupSetCallback(tabs, "TABCHANGE_CB", (Icallback)change_tab);
         IupSetCallback(tabs, "RIGHTCLICK_CB", (Icallback)action_tab_close);
         IupSetAttribute(tabs, "MARGIN", "3x5");
         IupAppend(main_area, tabs);
@@ -170,7 +171,7 @@ void open_tab(const char *title)
     // ATTENTION: code assumes the specific order NONE = 0, ODD and EVEN
     enum sp_parity parity = atoi(parity_index) - 1;
 
-    serialports[serialcount++] =
+    serialports[serialcount++].port =
         OpenSerialPort(title, baudrate, bits, parity, stopbits, TEXT_SIZE, TEXT_SIZE);
     create_tab(title, get_choice_radio());
 }
@@ -179,7 +180,7 @@ void close_tab(int index)
 {
     if (index < 0 || index >= sizeof(serialports)) return;
 
-    CloseSerialPort(serialports[index]);
+    CloseSerialPort(serialports[index].port);
     --serialcount;
     if (index < (sizeof(serialports) - 1))
         memmove(&serialports[index], &serialports[index + 1], sizeof(serialports) - index);
@@ -194,10 +195,16 @@ int text_entered(Ihandle *self, int c, char *new_value)
         if (value != NULL)
         {
             int index = atoi(IupGetAttribute(tabs, "VALUEPOS"));
-            WriteSerialBuffer(serialports[index], value, strlen(value));
+            WriteSerialBuffer(serialports[index].port, value, strlen(value));
             IupSetAttribute(self, "VALUE", "");
         }
     }
+    return IUP_DEFAULT;
+}
+
+int change_tab(Ihandle *self, Ihandle* new_tab, Ihandle* old_tab)
+{
+    printf("Teste\n");
     return IUP_DEFAULT;
 }
 

@@ -47,10 +47,14 @@ file_menu = menu(item_new, separator(), item_exit)
 item_about = item("About", action_about)
 help_menu = menu(item_about)
 
+item_single = item("Configuration", none)
+modbus_menu = menu(item_single)
+
 # Submenus
 file = submenu("File", file_menu)
 help = submenu("Help", help_menu)
-main_menu = menu(file, help)
+modbus = submenu[ACTIVE=NO]("Modbus", modbus_menu)
+main_menu = menu(file, modbus, help)
 
 # Main dialog
 main = dialog[TITLE=SerialTool, MENU=main_menu, USERSIZE=768x512](main_area)

@@ -4,8 +4,6 @@
 
 
 Ihandle *tabs = NULL;
-int tabs_count = 0;
-
 struct CommDescriptor serialports[MAXIMUM_PORTS];
 int serialcount = 0;
 

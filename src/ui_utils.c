@@ -155,15 +155,17 @@ void create_tab(const char* title, int choice)
 void open_tab(const char *title)
 {
     // Get user's choices
-    Ihandle* baud_list = IupGetHandle("comm_baud_list");
-    Ihandle* parity_list = IupGetHandle("comm_parity_list");
-    Ihandle* data_list = IupGetHandle("comm_data_list");
-    Ihandle* stop_list = IupGetHandle("comm_stop_list");
+    Ihandle *baud_list = IupGetHandle("comm_baud_list");
+    Ihandle *parity_list = IupGetHandle("comm_parity_list");
+    Ihandle *data_list = IupGetHandle("comm_data_list");
+    Ihandle *stop_list = IupGetHandle("comm_stop_list");
+    Ihandle *radio = IupGetHandle("type_radio");
 
-    const char* baud_index = IupGetAttribute(baud_list, "VALUE");
-    const char* parity_index = IupGetAttribute(parity_list, "VALUE");
-    const char* data_index = IupGetAttribute(data_list, "VALUE");
-    const char* stop_index = IupGetAttribute(stop_list, "VALUE");
+    const char *baud_index = IupGetAttribute(baud_list, "VALUE");
+    const char *parity_index = IupGetAttribute(parity_list, "VALUE");
+    const char *data_index = IupGetAttribute(data_list, "VALUE");
+    const char *stop_index = IupGetAttribute(stop_list, "VALUE");
+    const char *type = IupGetAttribute(radio, "VALUE");
 
     int baudrate = atoi(IupGetAttribute(baud_list, baud_index));
     int bits = atoi(IupGetAttribute(data_list, data_index));
@@ -173,6 +175,14 @@ void open_tab(const char *title)
 
     serialports[serialcount++].port =
         OpenSerialPort(title, baudrate, bits, parity, stopbits, TEXT_SIZE, TEXT_SIZE);
+
+    if (strcmp(type, SERIAL_CHOICE_STR) == 0)
+        serialports[serialcount].type = SERIAL;
+    else if (strcmp(type, ASCII_CHOICE_STR) == 0)
+        serialports[serialcount].type = MODBUS_ASCII;
+    else if (strcmp(type, RTU_CHOICE_STR) == 0)
+        serialports[serialcount].type = MODBUS_RTU;
+    // Deal with error else;
     create_tab(title, get_choice_radio());
 }
 

@@ -42,19 +42,22 @@ int serial_loop(void)
 
             // If \r is the last (or only) character available, skip reading the buffer
             // The purpose is to get both \r and \n together and avoid printing two new lines
-            int last_index = serialports[i].port->_InputBufferCount - 1;
-            if (serialports[i].port->_InputBuffer[last_index] == '\r')
-                count = serialports[i].port->_InputBufferCount - 1;
-
-            // Only character available (or no character at all). Skip
-            if (count != 0)
+            if (serialports[i].type == SERIAL)
             {
-                int read = ReadSerialBuffer(serialports[i].port, buffer, count);
-                Ihandle *vbox = IupGetChild(tabs, i);
-                Ihandle *text_read = IupGetChild(vbox, 1);
-                IupSetAttribute(text_read, "APPEND", buffer);
-                const char *caret = IupGetAttribute(text_read, "COUNT");
-                IupSetAttribute(text_read, "CARETPOS", caret);
+                int last_index = serialports[i].port->_InputBufferCount - 1;
+                if (serialports[i].port->_InputBuffer[last_index] == '\r')
+                    count = serialports[i].port->_InputBufferCount - 1;
+
+                // Only character available (or no character at all). Skip
+                if (count != 0)
+                {
+                    int read = ReadSerialBuffer(serialports[i].port, buffer, count);
+                    Ihandle *vbox = IupGetChild(tabs, i);
+                    Ihandle *text_read = IupGetChild(vbox, 1);
+                    IupSetAttribute(text_read, "APPEND", buffer);
+                    const char *caret = IupGetAttribute(text_read, "COUNT");
+                    IupSetAttribute(text_read, "CARETPOS", caret);
+                }
             }
         }
 

@@ -11,6 +11,10 @@
 #define CHOICE_MRTU   1
 #define CHOICE_SERIAL 2
 
+#define SERIAL_CHOICE_STR ("serial")
+#define ASCII_CHOICE_STR  ("modbus_ascii")
+#define RTU_CHOICE_STR    ("modbus_rtu")
+
 
 // UI callbacks (Main window)
 int action_exit(Ihandle *self);

@@ -6,8 +6,6 @@
 
 // Tabs
 extern Ihandle *tabs;
-extern int tabs_count;
-
 // extern struct SerialPort *serialports[MAXIMUM_PORTS];
 extern int serialcount;
 extern struct CommDescriptor serialports[MAXIMUM_PORTS];

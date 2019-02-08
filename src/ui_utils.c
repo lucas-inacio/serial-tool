@@ -98,6 +98,9 @@ int action_tab_close(Ihandle *self, int pos)
         else
             disable_modbus_menu();
     }
+    else
+        disable_modbus_menu();
+        
     IupDestroy(IupGetChild(tabs, pos));
     close_tab(pos);
     return IUP_DEFAULT;

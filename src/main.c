@@ -6,18 +6,16 @@
 Ihandle *tabs = NULL;
 int tabs_count = 0;
 
-// struct SerialPort *serialports[MAXIMUM_PORTS];
 struct CommDescriptor serialports[MAXIMUM_PORTS];
 int serialcount = 0;
 
 // Serial callback
 int serial_loop(void);
 void main_loop(int argc, char **argv);
-void print_registers(uint8_t* data, size_t size);
-
 
 struct SerialPort *serial = NULL;
 void teste_modbus(void);
+void print_registers(uint8_t* data, size_t size);
 
 int main(int argc, char **argv)
 {

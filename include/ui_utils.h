@@ -35,6 +35,10 @@ void open_tab(const char *title);
 void close_tab(int index);
 int change_tab(Ihandle *self, Ihandle* new_tab, Ihandle* old_tab);
 
+// Enables modbus menu when in a modbus tab.
+void enable_modbus_menu();
+void disable_modbus_menu();
+
 int get_choice_radio();
 
 #endif // UI_UTILS_H

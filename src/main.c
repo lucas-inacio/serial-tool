@@ -8,9 +8,7 @@ int tabs_count = 0;
 
 // struct SerialPort *serialports[MAXIMUM_PORTS];
 struct CommDescriptor serialports[MAXIMUM_PORTS];
-
 int serialcount = 0;
-
 
 // Serial callback
 int serial_loop(void);

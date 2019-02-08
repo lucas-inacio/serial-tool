@@ -93,6 +93,10 @@ int action_tab_close(Ihandle *self, int pos)
         char number[3] = { 0 };
         number_to_string(number, 2, prev);
         IupSetAttribute(tabs, "VALUEPOS", number);
+        if (serialports[prev].type != SERIAL)
+            enable_modbus_menu();
+        else
+            disable_modbus_menu();
     }
     IupDestroy(IupGetChild(tabs, pos));
     close_tab(pos);
@@ -173,15 +177,20 @@ void open_tab(const char *title)
     // ATTENTION: code assumes the specific order NONE = 0, ODD and EVEN
     enum sp_parity parity = atoi(parity_index) - 1;
 
-    serialports[serialcount++].port =
-        OpenSerialPort(title, baudrate, bits, parity, stopbits, TEXT_SIZE, TEXT_SIZE);
-
+    // The order is important here (serialcount)
     if (strcmp(type, SERIAL_CHOICE_STR) == 0)
         serialports[serialcount].type = SERIAL;
     else if (strcmp(type, ASCII_CHOICE_STR) == 0)
         serialports[serialcount].type = MODBUS_ASCII;
     else if (strcmp(type, RTU_CHOICE_STR) == 0)
         serialports[serialcount].type = MODBUS_RTU;
+
+    serialports[serialcount++].port =
+        OpenSerialPort(title, baudrate, bits, parity, stopbits, TEXT_SIZE, TEXT_SIZE);
+
+    if (serialcount == 1 && serialports[0].type != SERIAL)
+        enable_modbus_menu();    
+
     // Deal with error else;
     create_tab(title, get_choice_radio());
 }
@@ -193,7 +202,8 @@ void close_tab(int index)
     CloseSerialPort(serialports[index].port);
     --serialcount;
     if (index < (sizeof(serialports) - 1))
-        memmove(&serialports[index], &serialports[index + 1], sizeof(serialports) - index);
+        memmove(&serialports[index], &serialports[index + 1],
+                sizeof(serialports) - index);
 }
 
 int text_entered(Ihandle *self, int c, char *new_value)
@@ -205,8 +215,12 @@ int text_entered(Ihandle *self, int c, char *new_value)
         if (value != NULL)
         {
             int index = atoi(IupGetAttribute(tabs, "VALUEPOS"));
-            WriteSerialBuffer(serialports[index].port, value, strlen(value));
-            IupSetAttribute(self, "VALUE", "");
+            if (index >= 0)
+            {
+                WriteSerialBuffer(
+                    serialports[index].port, value, strlen(value));
+                IupSetAttribute(self, "VALUE", "");
+            }
         }
     }
     return IUP_DEFAULT;
@@ -214,8 +228,26 @@ int text_entered(Ihandle *self, int c, char *new_value)
 
 int change_tab(Ihandle *self, Ihandle* new_tab, Ihandle* old_tab)
 {
-    printf("Teste\n");
+    int index = atoi(IupGetAttribute(tabs, "VALUEPOS"));
+    if ((index >= 0 && index < serialcount) &&
+        (serialports[index].type != SERIAL))
+        enable_modbus_menu();
+    else
+        disable_modbus_menu();
+    
     return IUP_DEFAULT;
+}
+
+void enable_modbus_menu()
+{
+    Ihandle *modbus_menu = IupGetHandle("modbus");
+    IupSetAttribute(modbus_menu, "ACTIVE", "YES");
+}
+
+void disable_modbus_menu()
+{
+    Ihandle *modbus_menu = IupGetHandle("modbus");
+    IupSetAttribute(modbus_menu, "ACTIVE", "NO");
 }
 
 int get_choice_radio()

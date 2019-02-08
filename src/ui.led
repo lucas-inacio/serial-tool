@@ -47,8 +47,9 @@ file_menu = menu(item_new, separator(), item_exit)
 item_about = item("About", action_about)
 help_menu = menu(item_about)
 
-item_single = item("Configuration", none)
-modbus_menu = menu(item_single)
+item_settings = item("Poll settings", none)
+item_functions = item("Functions", none)
+modbus_menu = menu(item_settings, item_functions)
 
 # Submenus
 file = submenu("File", file_menu)

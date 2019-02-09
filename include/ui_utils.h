@@ -20,6 +20,7 @@
 int action_exit(Ihandle *self);
 int action_new(Ihandle *self);
 int action_about(Ihandle *self);
+int poll_settings(Ihandle* self);
 
 // UI callbacks (Comm configuration dialog)
 int action_config_ok(Ihandle *self);

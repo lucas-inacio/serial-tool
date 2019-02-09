@@ -1,5 +1,24 @@
 # Menu specification for the serial application
 
+##################################
+# Poll Settings dialog
+##################################
+read_function_list = list[
+    DROPDOWN=YES, VALUE=1, EXPAND=HORIZONTAL,
+    1="Read Coils",
+    2="Read Discrete Inputs",
+    3="Read Holding Registers",
+    4="Read Input Registers"
+    ](null)
+    
+settings_area = Vbox[CMARGIN=5x2]
+(
+    Hbox[GAP=5](Label[EXPAND=HORIZONTAL]("Function"), read_function_list),
+    Hbox[GAP=5](
+        Button[EXPAND=HORIZONTAL]("OK", comm_config_ok),
+        Button[EXPAND=HORIZONTAL]("Cancel", comm_config_cancel))
+)
+settings_dialog = dialog[TITLE="Poll Settings", DIALOGFRAME=YES, MINSIZE=256x200, ICON=NULL](settings_area)
 
 ##################################
 # Comm dialog
@@ -47,8 +66,8 @@ file_menu = menu(item_new, separator(), item_exit)
 item_about = item("About", action_about)
 help_menu = menu(item_about)
 
-item_settings = item("Poll settings", none)
-item_functions = item("Functions", none)
+item_settings = item("Poll settings", poll_settings)
+item_functions = item("Functions", functions)
 modbus_menu = menu(item_settings, item_functions)
 
 # Submenus

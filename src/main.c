@@ -80,6 +80,7 @@ void main_loop(int argc, char** argv)
     IupSetFunction("comm_config_cancel", (Icallback)action_config_cancel);
     IupSetFunction("IDLE_ACTION", (Icallback)serial_loop);
     IupSetFunction("action_about", (Icallback)action_about);
+    IupSetFunction("poll_settings", (Icallback)poll_settings);
 
     // Main loop
     IupShow(IupGetHandle("main"));

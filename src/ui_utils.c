@@ -58,6 +58,7 @@ int action_about(Ihandle *self)
 int poll_settings(Ihandle* self)
 {
     IupPopup(IupGetHandle("settings_dialog"), IUP_CENTERPARENT, IUP_CENTERPARENT);
+    return IUP_DEFAULT;
 }
 
 // UI callbacks (Comm configuration dialog)

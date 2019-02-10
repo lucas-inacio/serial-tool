@@ -10,10 +10,13 @@ read_function_list = list[
     3="Read Holding Registers",
     4="Read Input Registers"
     ](null)
+
+poll_interval = text[SPIN=YES, SPINMIN=50, SPINMAX=10000, EXPAND=HORIZONTAL](null)
     
 settings_area = Vbox[CMARGIN=5x2]
 (
     Hbox[GAP=5](Label[EXPAND=HORIZONTAL]("Function"), read_function_list),
+    Hbox[GAP=5](Label[EXPAND=HORIZONTAL]("Poll Interval (ms)"), poll_interval),
     Hbox[GAP=5](
         Button[EXPAND=HORIZONTAL]("OK", comm_config_ok),
         Button[EXPAND=HORIZONTAL]("Cancel", comm_config_cancel))

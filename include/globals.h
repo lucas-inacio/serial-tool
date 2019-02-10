@@ -3,11 +3,31 @@
 
 #include "SerialToolConfig.h"
 #include <iup/iup.h>
+#include <time.h>
+
+#include "modbus_utils.h"
+#include "serial_utils.h"
+
+#ifdef MAIN_FILE
+#define MODIFIER
+#else
+#define MODIFIER extern
+#endif
+
+#define MAXIMUM_PORTS 10
+#define TEMP_BUFFER   512
 
 // Tabs
-extern Ihandle *tabs;
+MODIFIER Ihandle *tabs;
 // extern struct SerialPort *serialports[MAXIMUM_PORTS];
-extern int serialcount;
-extern struct CommDescriptor serialports[MAXIMUM_PORTS];
+MODIFIER int serialcount;
+MODIFIER struct CommDescriptor serialports[MAXIMUM_PORTS];
+
+struct ModbusQueue
+{
+    struct ModbusMessage *msg;
+    struct ModbusMessage *next;
+    clock_t time_since_request;
+} modbus_queue;
 
 #endif // GLOBALS_H

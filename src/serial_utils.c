@@ -1,7 +1,5 @@
 #include "serial_utils.h"
 
-#include "globals.h"
-
 
 void show_port_names(struct sp_port **ports, int count)
 {
@@ -123,7 +121,6 @@ int ReadSerialPort(struct SerialPort *port)
     return bytesread;
 }
 
-#include <stdio.h>
 int WriteSerialPort(struct SerialPort *port)
 {
     int byteswritten = 0;

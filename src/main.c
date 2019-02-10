@@ -1,5 +1,6 @@
-#include "modbus_utils.h"
-#include "serial_utils.h"
+#define MAIN_FILE
+#include "globals.h"
+
 #include "ui_utils.h"
 
 
@@ -7,9 +8,11 @@ Ihandle *tabs = NULL;
 struct CommDescriptor serialports[MAXIMUM_PORTS];
 int serialcount = 0;
 
+// Time in seconds
+double delta();
+void main_loop(int argc, char **argv);
 // Serial callback
 int serial_loop(void);
-void main_loop(int argc, char **argv);
 
 struct SerialPort *serial = NULL;
 void teste_modbus(void);
@@ -20,6 +23,26 @@ int main(int argc, char **argv)
     main_loop(argc, argv);
     // teste_modbus();
     return EXIT_SUCCESS;
+}
+
+double delta()
+{
+    static clock_t last = 0;
+    static int first = 1;
+
+    double diff = 0.0;
+    if (!first)
+    {
+        clock_t now = clock();
+        diff = (double)(now - last) / CLOCKS_PER_SEC;
+        last = now;
+    }
+    else
+    {
+        last = clock();
+        first = 0;
+    }
+    return diff;
 }
 
 // Add limit to the number of serial ports checked in a single call

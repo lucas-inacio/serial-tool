@@ -28,6 +28,6 @@ struct ModbusQueue
     struct ModbusMessage *msg;
     struct ModbusMessage *next;
     clock_t time_since_request;
-} modbus_queue;
+};
 
 #endif // GLOBALS_H

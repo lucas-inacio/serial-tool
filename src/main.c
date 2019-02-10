@@ -7,6 +7,7 @@
 Ihandle *tabs = NULL;
 struct CommDescriptor serialports[MAXIMUM_PORTS];
 int serialcount = 0;
+struct ModbusQueue modbus_queue;
 
 // Time in seconds
 double delta();

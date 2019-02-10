@@ -23,7 +23,6 @@ int main(int argc, char **argv)
 {
     // main_loop(argc, argv);
     teste_modbus();
-    // teste_modbus_2();
     return EXIT_SUCCESS;
 }
 
@@ -149,28 +148,22 @@ void teste_modbus(void)
     for (i = 0; i < 100000; ++i)
         bytesReceived += ReadSerialPort(serial);
 
-    printf("Size: %d\n", bytesReceived);
     if (bytesReceived > 0)
     {
         printf("Data size: %d\n", ReadSerialBuffer(serial, buffer, bytesReceived));
         printf("Data: %s\n", buffer);
         // Eliminate the ':' and the 'CR' and 'LF' bytes
         translateFromASCIIStream(&buffer[1], bytesReceived - 3, &msg);
-        printf("Address: %d\n", msg.address);
-        printf("Function code: %d\n", msg.pdu.functionCode);
-        printf("Checksum: %d\n", msg.checksum);
-        printf("Size: %d\n", msg.pdu.size);
         print_registers(&msg.pdu.data[1], msg.pdu.size - 1);
     }
     printf("FIM!\n");
-    CloseSerialPort(serial);
     int a;
     scanf("%d", &a);
+    CloseSerialPort(serial);
 }
 
 void print_registers(uint8_t* data, size_t size)
 {
-    printf("Total: %d\n", size);
     size_t i;
     for (i = 0; i < (size - 1); i += 2)
     {
@@ -178,7 +171,6 @@ void print_registers(uint8_t* data, size_t size)
         number = ((data[i] << 8) & 0xFF00) | (data[i + 1] & 0x00FF);
         printf("Data: %d\n", number);
     }
-    printf("End\n");
 }
 
 void add_item(struct ModbusQueue **queue, struct ModbusMessage *msg)

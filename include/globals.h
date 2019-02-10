@@ -26,8 +26,36 @@ MODIFIER struct CommDescriptor serialports[MAXIMUM_PORTS];
 struct ModbusQueue
 {
     struct ModbusMessage *msg;
-    struct ModbusMessage *next;
+    struct ModbusQueue *next;
     clock_t time_since_request;
+    size_t remaining, total;
+    struct SerialPort *port;
 };
+
+// ModbusQueue functions
+// Includes an item at the end of the queue
+MODIFIER void add_item(struct ModbusQueue **queue, struct ModbusMessage *msg);
+// Removes the first item and returns the new starting element
+MODIFIER void remove_item(struct ModbusQueue **queue);
+
+// These functions build and add elements in the
+// ModbusQueue (they don't actually send anything)
+MODIFIER void ReadRequest(
+    struct ModbusQueue **queue,
+    enum ModbusFunction function,
+    uint8_t id, uint16_t start, uint16_t quantity);
+
+MODIFIER void SendModbusMessage(struct ModbusQueue **queue);
+
+MODIFIER void DestroyRequest(struct ModbusQueue **queue);
+
+// MODIFIER WriteSingleCoil(
+//     struct ModbusQueue *queue, uint8_t id, uint16_t address, uint16_t value);
+// MODIFIER WriteSingleRegister(
+//     struct ModbusQueue *queue, uint8_t id, uint16_t start, uint16_t quantity);
+// MODIFIER WriteMultipleCoils(
+//     struct ModbusQueue *queue, uint8_t id, uint16_t start, uint16_t quantity);
+// MODIFIER WriteMultipleRegisters(
+//     struct ModbusQueue *queue, uint8_t id, uint16_t start, uint16_t quantity);
 
 #endif // GLOBALS_H

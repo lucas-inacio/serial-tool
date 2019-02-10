@@ -6,6 +6,9 @@
 #define COIL_ON  0xFF00
 #define COIL_OFF 0x0000
 
+// Default pre-allocated bytes for message data
+#define MESSAGE_SIZE 64
+
 enum ModbusFunction
 {
     READ_COILS = 1,
@@ -24,7 +27,7 @@ struct ModbusMessage
     struct ModbusPDU
     {
         enum ModbusFunction functionCode;
-        uint8_t* data;
+        uint8_t data[MESSAGE_SIZE];
         size_t size;
     } pdu;
     uint16_t checksum;

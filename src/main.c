@@ -1,13 +1,14 @@
 #define MAIN_FILE
 #include "globals.h"
-
 #include "ui_utils.h"
+
+#include <stdlib.h>
 
 
 Ihandle *tabs = NULL;
 struct CommDescriptor serialports[MAXIMUM_PORTS];
 int serialcount = 0;
-struct ModbusQueue modbus_queue;
+struct ModbusQueue *modbus_queue;
 
 // Time in seconds
 double delta();
@@ -15,14 +16,14 @@ void main_loop(int argc, char **argv);
 // Serial callback
 int serial_loop(void);
 
-struct SerialPort *serial = NULL;
 void teste_modbus(void);
 void print_registers(uint8_t* data, size_t size);
 
 int main(int argc, char **argv)
 {
-    main_loop(argc, argv);
-    // teste_modbus();
+    // main_loop(argc, argv);
+    teste_modbus();
+    // teste_modbus_2();
     return EXIT_SUCCESS;
 }
 
@@ -120,54 +121,56 @@ void main_loop(int argc, char** argv)
 void teste_modbus(void)
 {
     printf("Testando...\n");
-    uint8_t buffer[512] = { 0 };
-    uint8_t bufferFinal[512] = { 0 };
-    struct ModbusMessage msg;
-    msg.pdu.data = buffer;
-    // Coil off
-    BuildRequest(&msg, 1, WRITE_SINGLE_COIL, 0, COIL_OFF);
-    size_t size = translateToASCIIStream(&msg, &bufferFinal[1]);
-    bufferFinal[0] = ':';
-    bufferFinal[size + 1] = '\r';
-    bufferFinal[size + 2] = '\n';
-    printf("Size: %d", size);
-    printf("Message: %s\n", bufferFinal);
+    struct ModbusQueue *queue = NULL;
+    ReadRequest(&queue, READ_HOLDING_REGISTERS, 1, 0, 5);
 
     // Send
-    size_t bytesToSend = strlen(bufferFinal);
+    printf("Opening port...\n");
+    struct SerialPort *serial = OpenSerialPort("COM3", 9600, 8, SP_PARITY_NONE, 2, 512, 512);
+    queue->port = serial;
+    size_t total = 0;
+    do
+    {
+        SendModbusMessage(&queue);
+    }
+    while (queue);
+
     size_t bytesSent = 0;
-    serial = OpenSerialPort("COM3", 9600, 8, SP_PARITY_NONE, 2, 512, 512);
-    printf("Bytes sent: %d\n", WriteSerialBuffer(serial, bufferFinal, bytesToSend));
     do
     {
         bytesSent += WriteSerialPort(serial);
-    }
-    while (bytesSent < bytesToSend);
+    } while (bytesSent < 17);
 
     // Receive
+    uint8_t buffer[512] = { 0 };
+    struct ModbusMessage msg;
     size_t bytesReceived = 0;
     int i;
     for (i = 0; i < 100000; ++i)
         bytesReceived += ReadSerialPort(serial);
 
+    printf("Size: %d\n", bytesReceived);
     if (bytesReceived > 0)
     {
-        // printf("Data size: %d\n", ReadSerialBuffer(serial, bufferFinal, bytesReceived));
-        // printf("Data: %s\n", bufferFinal);
-        // // Eliminate the ':' and the 'CR' and 'LF' bytes
-        // translateFromASCIIStream(&bufferFinal[1], bytesReceived - 3, &msg);
-        // printf("Address: %d\n", msg.address);
-        // printf("Function code: %d\n", msg.pdu.functionCode);
-        // printf("Checksum: %d\n", msg.checksum);
-        // printf("Size: %d\n", msg.pdu.size);
-        // print_registers(&msg.pdu.data[1], msg.pdu.size - 1);
+        printf("Data size: %d\n", ReadSerialBuffer(serial, buffer, bytesReceived));
+        printf("Data: %s\n", buffer);
+        // Eliminate the ':' and the 'CR' and 'LF' bytes
+        translateFromASCIIStream(&buffer[1], bytesReceived - 3, &msg);
+        printf("Address: %d\n", msg.address);
+        printf("Function code: %d\n", msg.pdu.functionCode);
+        printf("Checksum: %d\n", msg.checksum);
+        printf("Size: %d\n", msg.pdu.size);
+        print_registers(&msg.pdu.data[1], msg.pdu.size - 1);
     }
-    scanf("Prosseguir?\n");
+    printf("FIM!\n");
     CloseSerialPort(serial);
+    int a;
+    scanf("%d", &a);
 }
 
 void print_registers(uint8_t* data, size_t size)
 {
+    printf("Total: %d\n", size);
     size_t i;
     for (i = 0; i < (size - 1); i += 2)
     {
@@ -175,4 +178,81 @@ void print_registers(uint8_t* data, size_t size)
         number = ((data[i] << 8) & 0xFF00) | (data[i + 1] & 0x00FF);
         printf("Data: %d\n", number);
     }
+    printf("End\n");
+}
+
+void add_item(struct ModbusQueue **queue, struct ModbusMessage *msg)
+{
+    // Go to the end
+    if (!(*queue))
+    {
+        (*queue) = malloc(sizeof(struct ModbusQueue));
+        (*queue)->next = NULL;
+        (*queue)->msg = msg;
+        (*queue)->time_since_request = 0;
+        (*queue)->total = 0;
+        (*queue)->remaining = 0;
+    }
+    else
+    {  
+        struct ModbusQueue *first = *queue;
+        while (first->next) first = first->next;
+        // Creates a new item and adds it to the end
+        struct ModbusQueue *next = malloc(sizeof(struct ModbusQueue));
+        next->msg = msg;
+        next->time_since_request = 0;
+        next->next = NULL;
+        next->total = 0;
+        next->remaining = 0;
+        first->next = next;
+    }
+}
+
+void remove_item(struct ModbusQueue **queue)
+{
+    struct ModbusQueue *next = (*queue)->next;
+    free(*queue);
+    *queue = next;
+}
+
+void ReadRequest(
+    struct ModbusQueue **queue,
+    enum ModbusFunction function,
+    uint8_t id, uint16_t start, uint16_t quantity)
+{
+    struct ModbusMessage *msg = malloc(sizeof(struct ModbusMessage));
+    BuildRequest(msg, id, function, start, quantity);
+    add_item(queue, msg);
+}
+
+MODIFIER void SendModbusMessage(struct ModbusQueue **queue)
+{
+    static uint8_t _buffer[64] = { 0 };
+
+    if (*queue)
+    {
+        if ((*queue)->total == 0)
+        {
+            size_t size = translateToASCIIStream((*queue)->msg, &_buffer[1]);
+            _buffer[0] = ':';
+            _buffer[size + 1] = '\r';
+            _buffer[size + 2] = '\n';
+            (*queue)->total = size + 3;
+            (*queue)->remaining = size + 3;
+        }
+
+        size_t total = (*queue)->total;
+        size_t remaining = (*queue)->remaining;
+        (*queue)->remaining -=
+            WriteSerialBuffer((*queue)->port, &_buffer[total - remaining], remaining);
+
+        if ((*queue)->remaining == 0)
+            DestroyRequest(queue);
+    }
+}
+
+void DestroyRequest(struct ModbusQueue **queue)
+{
+    free((*queue)->msg);
+    remove_item(queue);
 }

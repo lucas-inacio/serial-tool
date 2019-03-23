@@ -21,8 +21,8 @@ void print_registers(uint8_t* data, size_t size);
 
 int main(int argc, char **argv)
 {
-    // main_loop(argc, argv);
-    teste_modbus();
+    main_loop(argc, argv);
+    // teste_modbus();
     return EXIT_SUCCESS;
 }
 
@@ -57,7 +57,6 @@ int serial_loop(void)
         if (ReadSerialPort(serialports[i].port) > 0)
         {
             int count = TEXT_SIZE; // maximum bytes to read
-
             // If \r is the last (or only) character available, skip reading the buffer
             // The purpose is to get both \r and \n together and avoid printing two new lines
             if (serialports[i].type == SERIAL)
@@ -78,7 +77,6 @@ int serial_loop(void)
                 }
             }
         }
-
         // Write operation
         WriteSerialPort(serialports[i].port);
     }

@@ -32,6 +32,8 @@ int text_entered(Ihandle *self, int c, char *new_value);
 
 // Helper functions
 void create_tab(const char *title, int choice);
+Ihandle *create_tab_serial();
+Ihandle *create_tab_modbus();
 void open_tab(const char *title);
 void close_tab(int index);
 int change_tab(Ihandle *self, Ihandle* new_tab, Ihandle* old_tab);

@@ -116,7 +116,7 @@ void create_tab(const char* title, int choice)
 {
     // Creates a Tabs in case there isn't one yet
     Ihandle* main_area = IupGetHandle("main_area");
-    Ihandle *vbox = NULL;
+    Ihandle *hbox = NULL;
     if (tabs == NULL)
     {
         tabs = IupTabs(NULL);
@@ -132,37 +132,61 @@ void create_tab(const char* title, int choice)
     case CHOICE_MASCII:
     case CHOICE_MRTU:
         {
-            Ihandle *matrix = IupMatrix(NULL);
-            vbox = IupVbox(matrix, NULL);
+            hbox = create_tab_modbus();
         }
         break;
     case CHOICE_SERIAL:
         {
-            Ihandle *text_read = IupText(NULL);
-            IupSetAttribute(text_read, "MULTILINE", "YES");
-            IupSetAttribute(text_read, "EXPAND", "YES");
-            IupSetAttribute(text_read, "READONLY", "YES");
-            IupSetAttribute(text_read, "APPENDNEWLINE", "NO");
-
-            Ihandle *text_write = IupText(NULL);
-            IupSetAttribute(text_write, "EXPAND", "HORIZONTAL");
-            char str[4] = { 0 };
-            number_to_string(str, 3, TEXT_SIZE);
-            IupSetAttribute(text_write, "NC", str);
-            IupSetCallback(text_write, "K_ANY", (Icallback)text_entered);
-            vbox = IupVbox(text_write, text_read, NULL);
+            hbox = create_tab_serial();
         }
         break;
     }
 
-    IupSetAttribute(vbox, "TABTITLE", title);
-    IupSetAttribute(vbox, "GAP", "5");
+    IupSetAttribute(hbox, "TABTITLE", title);
+    IupSetAttribute(hbox, "GAP", "5");
     // Inserts the new widgets on the Tabs
-    IupAppend(tabs, vbox);
-    IupMap(vbox);
+    IupAppend(tabs, hbox);
+    IupMap(hbox);
 
     // Updates the main window
     IupRefresh(IupGetHandle("main"));
+}
+
+Ihandle *create_tab_serial()
+{
+    Ihandle *text_read = IupText(NULL);
+    IupSetAttribute(text_read, "MULTILINE", "YES");
+    IupSetAttribute(text_read, "EXPAND", "YES");
+    IupSetAttribute(text_read, "READONLY", "YES");
+    IupSetAttribute(text_read, "APPENDNEWLINE", "NO");
+
+    Ihandle *text_write = IupText(NULL);
+    IupSetAttribute(text_write, "EXPAND", "HORIZONTAL");
+    char str[4] = { 0 };
+    number_to_string(str, 3, TEXT_SIZE);
+    IupSetAttribute(text_write, "NC", str);
+    IupSetCallback(text_write, "K_ANY", (Icallback)text_entered);
+    return IupVbox(text_write, text_read, NULL);
+}
+
+Ihandle *create_tab_modbus()
+{
+    Ihandle *type = IupList(NULL);
+    IupSetAttribute(type, "DROPDOWN", "YES");
+    IupSetAttribute(type, "SIZE", "100x10");
+    IupSetAttribute(type, "1", "Write Single Coil");
+    IupSetAttribute(type, "2", "Write Single Register");
+    IupSetAttribute(type, "3", "Write Multiple Coils");
+    IupSetAttribute(type, "4", "Write Multiple Registers");
+
+    Ihandle *data = IupText(NULL);
+    IupSetAttribute(data, "SIZE", "100x10");
+
+    Ihandle *functions = IupVbox(type, data, IupButton("Send", NULL), NULL);
+    IupSetAttribute(functions, "MINSIZE", "256x400");
+
+    Ihandle *matrix = IupMatrix(NULL);
+    return IupHbox(matrix, functions, NULL);
 }
 
 void open_tab(const char *title)

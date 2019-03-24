@@ -46,6 +46,43 @@ double delta()
     return diff;
 }
 
+void read_serial(int index, uint8_t *buffer, size_t size)
+{
+    // If \r is the last (or only) character available, skip reading the buffer
+    // The purpose is to get both \r and \n together and avoid printing two new lines
+    int count = size;
+    int last_index = serialports[index].port->_InputBufferCount - 1;
+    if (serialports[index].port->_InputBuffer[last_index] == '\r')
+        count = serialports[index].port->_InputBufferCount - 1;
+
+    // Only character available (or no character at all). Skip
+    if (count != 0)
+    {
+        int read = ReadSerialBuffer(serialports[index].port, buffer, count);
+        Ihandle *vbox = IupGetChild(tabs, index);
+        Ihandle *text_read = IupGetChild(vbox, 1);
+        IupSetAttribute(text_read, "APPEND", buffer);
+        const char *caret = IupGetAttribute(text_read, "COUNT");
+        IupSetAttribute(text_read, "CARETPOS", caret);
+    }
+}
+
+void read_modbus_ascii(int index, uint8_t *buffer, size_t size)
+{
+    int count = size;
+    int offset = serialports[index].port->_InputBufferCount - 2;
+    const uint8_t *data = &serialports[index].port->_InputBuffer[offset];
+    if (*data == '\r' && *(data + 1) == '\n')
+    {
+        struct ModbusMessage msg;
+        int bytesReceived = ReadSerialBuffer(serialports[index].port, buffer, count);
+        translateFromASCIIStream(&buffer[1], bytesReceived - 3, &msg);
+        print_registers(&msg.pdu.data[1], msg.pdu.size - 1);
+        printf("Row data: %s\n", buffer);
+        printf("Data size: %d\n", bytesReceived);
+    }
+}
+
 // Add limit to the number of serial ports checked in a single call
 int serial_loop(void)
 {
@@ -57,25 +94,10 @@ int serial_loop(void)
         if (ReadSerialPort(serialports[i].port) > 0)
         {
             int count = TEXT_SIZE; // maximum bytes to read
-            // If \r is the last (or only) character available, skip reading the buffer
-            // The purpose is to get both \r and \n together and avoid printing two new lines
             if (serialports[i].type == SERIAL)
-            {
-                int last_index = serialports[i].port->_InputBufferCount - 1;
-                if (serialports[i].port->_InputBuffer[last_index] == '\r')
-                    count = serialports[i].port->_InputBufferCount - 1;
-
-                // Only character available (or no character at all). Skip
-                if (count != 0)
-                {
-                    int read = ReadSerialBuffer(serialports[i].port, buffer, count);
-                    Ihandle *vbox = IupGetChild(tabs, i);
-                    Ihandle *text_read = IupGetChild(vbox, 1);
-                    IupSetAttribute(text_read, "APPEND", buffer);
-                    const char *caret = IupGetAttribute(text_read, "COUNT");
-                    IupSetAttribute(text_read, "CARETPOS", caret);
-                }
-            }
+                read_serial(i, buffer, TEXT_SIZE);
+            else if (serialports[i].type == MODBUS_ASCII)
+                read_modbus_ascii(i, buffer, TEXT_SIZE);
         }
         if (modbus_queue) SendModbusMessage(&modbus_queue);
         // Write operation

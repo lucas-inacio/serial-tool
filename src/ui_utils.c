@@ -123,6 +123,7 @@ void create_tab(const char* title, int choice)
         IupSetCallback(tabs, "TABCHANGE_CB", (Icallback)change_tab);
         IupSetCallback(tabs, "RIGHTCLICK_CB", (Icallback)action_tab_close);
         IupSetAttribute(tabs, "MARGIN", "3x5");
+        IupSetAttribute(tabs, "TIP", "Right click to close");
         IupAppend(main_area, tabs);
         IupMap(tabs);
     }
@@ -144,7 +145,6 @@ void create_tab(const char* title, int choice)
 
     IupSetAttribute(hbox, "TABTITLE", title);
     IupSetAttribute(hbox, "GAP", "5");
-    IupSetAttribute(tabs, "TIP", "Right click to close");
     // Inserts the new widgets on the Tabs
     IupAppend(tabs, hbox);
     IupMap(hbox);

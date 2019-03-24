@@ -14,8 +14,6 @@ double delta();
 void main_loop(int argc, char **argv);
 // Serial callback
 int serial_loop(void);
-
-void teste_modbus(void);
 void print_registers(uint8_t* data, size_t size);
 
 int main(int argc, char **argv)
@@ -69,6 +67,7 @@ void read_serial(int index, uint8_t *buffer, size_t size)
 
 void read_modbus_ascii(int index, uint8_t *buffer, size_t size)
 {
+    // TODO: support read in chunks
     int count = size;
     int offset = serialports[index].port->_InputBufferCount - 2;
     const uint8_t *data = &serialports[index].port->_InputBuffer[offset];
@@ -136,52 +135,6 @@ void main_loop(int argc, char** argv)
     IupClose();
     for (--serialcount; serialcount >= 0; --serialcount)
         CloseSerialPort(serialports[serialcount].port);
-}
-
-void teste_modbus(void)
-{
-    printf("Testando...\n");
-    struct ModbusQueue *queue = NULL;
-    QueueRequest(&queue, WRITE_SINGLE_COIL, NULL, 1, 0, COIL_ON);
-    print_registers(&queue->msg->pdu.data[1], queue->msg->pdu.size - 1);
-
-    // Send
-    printf("Opening port...\n");
-    struct SerialPort *serial = OpenSerialPort("COM3", 9600, 8, SP_PARITY_NONE, 2, 512, 512);
-    queue->port = serial;
-    size_t total = 0;
-    do
-    {
-        SendModbusMessage(&queue);
-    }
-    while (queue);
-
-    size_t bytesSent = 0;
-    do
-    {
-        bytesSent += WriteSerialPort(serial);
-    } while (bytesSent < 17);
-
-    // Receive
-    uint8_t buffer[512] = { 0 };
-    struct ModbusMessage msg;
-    size_t bytesReceived = 0;
-    int i;
-    for (i = 0; i < 100000; ++i)
-        bytesReceived += ReadSerialPort(serial);
-
-    if (bytesReceived > 0)
-    {
-        printf("Data size: %d\n", ReadSerialBuffer(serial, buffer, bytesReceived));
-        printf("Data: %s\n", buffer);
-        // Eliminate the ':' and the 'CR' and 'LF' bytes
-        translateFromASCIIStream(&buffer[1], bytesReceived - 3, &msg);
-        print_registers(&msg.pdu.data[1], msg.pdu.size - 1);
-    }
-    printf("FIM!\n");
-    int a;
-    scanf("%d", &a);
-    CloseSerialPort(serial);
 }
 
 void print_registers(uint8_t* data, size_t size)

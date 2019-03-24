@@ -32,17 +32,21 @@ struct ModbusQueue
     struct SerialPort *port;
 };
 
+MODIFIER struct ModbusQueue *modbus_queue;
+
 // ModbusQueue functions
 // Includes an item at the end of the queue
-MODIFIER void add_item(struct ModbusQueue **queue, struct ModbusMessage *msg);
+MODIFIER struct ModbusQueue *add_item(
+    struct ModbusQueue **queue, struct ModbusMessage *msg);
 // Removes the first item and returns the new starting element
 MODIFIER void remove_item(struct ModbusQueue **queue);
 
 // These functions build and add elements in the
 // ModbusQueue (they don't actually send anything)
-MODIFIER void ReadRequest(
+MODIFIER void QueueRequest(
     struct ModbusQueue **queue,
     enum ModbusFunction function,
+    struct SerialPort *port,
     uint8_t id, uint16_t start, uint16_t quantity);
 
 MODIFIER void SendModbusMessage(struct ModbusQueue **queue);

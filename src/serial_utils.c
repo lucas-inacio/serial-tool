@@ -159,7 +159,7 @@ int ReadSerialBuffer(struct SerialPort *port, char *buffer, int count)
 
 int WriteSerialBuffer(struct SerialPort *port, char *buffer, int count)
 {
-    if (count > port->_OutputBufferSize) count = port->_OutputBufferSize;
+                      if (count > port->_OutputBufferSize) count = port->_OutputBufferSize;
     memcpy(port->_OutputBuffer, buffer, count);
     port->_OutputBufferCount = count;
 

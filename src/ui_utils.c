@@ -173,6 +173,7 @@ Ihandle *create_tab_modbus()
 {
     Ihandle *label_msg = IupLabel("Message");
     Ihandle *label_addr = IupLabel("Address");
+    Ihandle *label_start = IupLabel("Start");
     Ihandle *label_quantity = IupLabel("Quantity");
     Ihandle *label_data = IupLabel("Value");
 
@@ -185,22 +186,64 @@ Ihandle *create_tab_modbus()
     IupSetAttribute(type, "4", "Write Multiple Registers");
 
     Ihandle *addr = IupText(NULL);
+    Ihandle *start = IupText(NULL);
     Ihandle *quantity = IupText(NULL);
     Ihandle *data = IupText(NULL);
     IupSetAttribute(addr, "SPIN", "YES");
+    IupSetAttribute(start, "SPIN", "YES");
     IupSetAttribute(quantity, "SPIN", "YES");
     IupSetAttribute(data, "SPIN", "YES");
+
+    // Give names to handles so we can refer to them later
+    IupSetHandle("msg_type", type);
+    IupSetHandle("addr_spin", addr);
+    IupSetHandle("start_spin", start);
+    IupSetHandle("quantity_spin", quantity);
+    IupSetHandle("data_spin", data);    
+    Ihandle *send_button = IupButton("Send", NULL);
+    IupSetCallback(send_button, "ACTION", (Icallback)send_callback);
 
     Ihandle *functions = IupVbox(
         label_msg, type,
         label_addr, addr,
+        label_start, start,
         label_quantity, quantity,
         label_data, data,
-        IupButton("Send", NULL), NULL);
+        send_button, NULL);
     IupSetAttribute(functions, "MINSIZE", "256x400");
 
     Ihandle *matrix = IupMatrix(NULL);
     return IupHbox(matrix, functions, NULL);
+}
+
+int send_callback(Ihandle *ih)
+{
+    int choice = atoi(IupGetAttribute(IupGetHandle("msg_type"), "VALUE"));
+    int address = atoi(IupGetAttribute(IupGetHandle("addr_spin"), "VALUE"));
+    int start = atoi(IupGetAttribute(IupGetHandle("start_spin"), "VALUE"));
+    int quantity = atoi(IupGetAttribute(IupGetHandle("quantity_spin"), "VALUE"));
+    int data = atoi(IupGetAttribute(IupGetHandle("data_spin"), "VALUE"));
+    int index = atoi(IupGetAttribute(tabs, "VALUEPOS"));
+
+    switch (choice)
+    {
+    case 1:
+        QueueRequest(
+            &modbus_queue, WRITE_SINGLE_COIL, serialports[index].port,
+            address, start, (data != 0) ? COIL_ON : COIL_OFF);
+        break;
+    case 2:
+        QueueRequest(
+            &modbus_queue, WRITE_SINGLE_REGISTER, serialports[index].port,
+            address, start, data);
+        break;
+    case 3:
+        break;
+    case 4:
+        break;
+    }
+
+    return IUP_DEFAULT;
 }
 
 void open_tab(const char *title)

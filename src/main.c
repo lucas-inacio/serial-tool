@@ -8,7 +8,6 @@
 Ihandle *tabs = NULL;
 struct CommDescriptor serialports[MAXIMUM_PORTS];
 int serialcount = 0;
-struct ModbusQueue *modbus_queue;
 
 // Time in seconds
 double delta();
@@ -21,6 +20,7 @@ void print_registers(uint8_t* data, size_t size);
 
 int main(int argc, char **argv)
 {
+    modbus_queue = NULL;
     main_loop(argc, argv);
     // teste_modbus();
     return EXIT_SUCCESS;
@@ -77,6 +77,7 @@ int serial_loop(void)
                 }
             }
         }
+        if (modbus_queue) SendModbusMessage(&modbus_queue);
         // Write operation
         WriteSerialPort(serialports[i].port);
     }
@@ -119,7 +120,8 @@ void teste_modbus(void)
 {
     printf("Testando...\n");
     struct ModbusQueue *queue = NULL;
-    ReadRequest(&queue, READ_HOLDING_REGISTERS, 1, 0, 5);
+    QueueRequest(&queue, WRITE_SINGLE_COIL, NULL, 1, 0, COIL_ON);
+    print_registers(&queue->msg->pdu.data[1], queue->msg->pdu.size - 1);
 
     // Send
     printf("Opening port...\n");
@@ -171,7 +173,7 @@ void print_registers(uint8_t* data, size_t size)
     }
 }
 
-void add_item(struct ModbusQueue **queue, struct ModbusMessage *msg)
+struct ModbusQueue *add_item(struct ModbusQueue **queue, struct ModbusMessage *msg)
 {
     // Go to the end
     if (!(*queue))
@@ -182,6 +184,7 @@ void add_item(struct ModbusQueue **queue, struct ModbusMessage *msg)
         (*queue)->time_since_request = 0;
         (*queue)->total = 0;
         (*queue)->remaining = 0;
+        return *queue;
     }
     else
     {  
@@ -195,6 +198,7 @@ void add_item(struct ModbusQueue **queue, struct ModbusMessage *msg)
         next->total = 0;
         next->remaining = 0;
         first->next = next;
+        return next;
     }
 }
 
@@ -205,14 +209,16 @@ void remove_item(struct ModbusQueue **queue)
     *queue = next;
 }
 
-void ReadRequest(
+void QueueRequest(
     struct ModbusQueue **queue,
     enum ModbusFunction function,
+    struct SerialPort *port,
     uint8_t id, uint16_t start, uint16_t quantity)
 {
     struct ModbusMessage *msg = malloc(sizeof(struct ModbusMessage));
     BuildRequest(msg, id, function, start, quantity);
-    add_item(queue, msg);
+    struct ModbusQueue *next = add_item(queue, msg);
+    next->port = port;
 }
 
 MODIFIER void SendModbusMessage(struct ModbusQueue **queue)

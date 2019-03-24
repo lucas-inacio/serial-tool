@@ -34,6 +34,7 @@ int text_entered(Ihandle *self, int c, char *new_value);
 void create_tab(const char *title, int choice);
 Ihandle *create_tab_serial();
 Ihandle *create_tab_modbus();
+int send_callback(Ihandle *ih);
 
 void open_tab(const char *title);
 void close_tab(int index);

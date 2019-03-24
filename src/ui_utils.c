@@ -171,6 +171,11 @@ Ihandle *create_tab_serial()
 
 Ihandle *create_tab_modbus()
 {
+    Ihandle *label_msg = IupLabel("Message");
+    Ihandle *label_addr = IupLabel("Address");
+    Ihandle *label_quantity = IupLabel("Quantity");
+    Ihandle *label_data = IupLabel("Value");
+
     Ihandle *type = IupList(NULL);
     IupSetAttribute(type, "DROPDOWN", "YES");
     IupSetAttribute(type, "SIZE", "100x10");
@@ -179,10 +184,19 @@ Ihandle *create_tab_modbus()
     IupSetAttribute(type, "3", "Write Multiple Coils");
     IupSetAttribute(type, "4", "Write Multiple Registers");
 
+    Ihandle *addr = IupText(NULL);
+    Ihandle *quantity = IupText(NULL);
     Ihandle *data = IupText(NULL);
-    IupSetAttribute(data, "SIZE", "100x10");
+    IupSetAttribute(addr, "SPIN", "YES");
+    IupSetAttribute(quantity, "SPIN", "YES");
+    IupSetAttribute(data, "SPIN", "YES");
 
-    Ihandle *functions = IupVbox(type, data, IupButton("Send", NULL), NULL);
+    Ihandle *functions = IupVbox(
+        label_msg, type,
+        label_addr, addr,
+        label_quantity, quantity,
+        label_data, data,
+        IupButton("Send", NULL), NULL);
     IupSetAttribute(functions, "MINSIZE", "256x400");
 
     Ihandle *matrix = IupMatrix(NULL);

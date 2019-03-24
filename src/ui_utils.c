@@ -144,6 +144,7 @@ void create_tab(const char* title, int choice)
 
     IupSetAttribute(hbox, "TABTITLE", title);
     IupSetAttribute(hbox, "GAP", "5");
+    IupSetAttribute(tabs, "TIP", "Right click to close");
     // Inserts the new widgets on the Tabs
     IupAppend(tabs, hbox);
     IupMap(hbox);

@@ -190,9 +190,13 @@ Ihandle *create_tab_modbus()
     Ihandle *quantity = IupText(NULL);
     Ihandle *data = IupText(NULL);
     IupSetAttribute(addr, "SPIN", "YES");
+    IupSetAttribute(addr, "READONLY", "YES");
     IupSetAttribute(start, "SPIN", "YES");
+    IupSetAttribute(start, "READONLY", "YES");
     IupSetAttribute(quantity, "SPIN", "YES");
+    IupSetAttribute(quantity, "READONLY", "YES");
     IupSetAttribute(data, "SPIN", "YES");
+    IupSetAttribute(data, "READONLY", "YES");
 
     // Give names to handles so we can refer to them later
     IupSetHandle("msg_type", type);
